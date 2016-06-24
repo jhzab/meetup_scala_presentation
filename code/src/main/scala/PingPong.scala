@@ -12,7 +12,7 @@ final case class BigBall(t: String)
 final class Ping extends Actor with ActorLogging {
   var cnt = 0
   def receive = {
-    case Ball =>
+    case SmallBall =>
       cnt += 1
       sender() ! BigBall("PING")
       Thread.sleep(1000)
@@ -27,7 +27,7 @@ final class Pong extends Actor with ActorLogging {
     case SmallBall => sender() ! SmallBall()
     case BigBall(t) =>
       cnt += 1
-      sender().tell(Ball, self)
+      sender().tell(SmallBall, self)
       Thread.sleep(1000)
       log.info(s"Very informative message: $t")
     case _ => log.error("Received something weird, go away!")
@@ -40,6 +40,6 @@ object PingPong {
     val ping = actorSystem.actorOf(Props[Ping], "ping")
     val pong = actorSystem.actorOf(Props[Pong], "pong")
 
-    pong.tell(Ball, ping)
+    ping.tell(SmallBall, pong)
   }
 }

@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>reveal.js – The HTML Presentation Framework</title>
+		<title>Scala Meetup presentation</title>
 
 		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
 		<meta name="author" content="Hakim El Hattab">
@@ -15,7 +15,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/theme/white.css" id="theme">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -43,6 +43,18 @@
 				<section>
 					<h1>Scala</h1>
 				</section>
+
+				<section>
+					<h2>Tools</h2>
+<p>sbt: <a href="http://www.scala-sbt.org/">www.scala.sbt.org</a></p>
+<p>ensime: <a href="http://ensime.github.io/">ensime.github.io</a></p>
+<p>scala IDE: <a href="http://scala-ide.org/">scala-ide.org</a></p>
+					<aside class="notes">
+						sbt: runs on linux, macos, windows. wrapper for scala, only dep is the JDK!
+						ensime: usable with most editors: vim, emacs, atom, sublime text
+						IntelliJ has its own plugin etc.
+					</aside>
+				</section>				
 				<section data-markdown>
 					<script type="text/template">
 						## case classes
@@ -64,15 +76,8 @@ def greetAnimal(a: Animal): Unit = a match {
 						```
 					</script>
 </section>
-				<section data-markdown>
-					<script type="text/template">
-					  ## Typeclasses
-					  * Nice [tutorial](http://danielwestheide.com/blog/2013/02/06/the-neophytes-guide-to-scala-part-12-type-classes.html) by Daniel Westheide
 
-						```
-						```
-					</script>
-				</section>		
+
 				<section data-markdown>
 					<script type="text/template">
 						## Akka
@@ -91,6 +96,94 @@ final class Actor1 extends Actor {
 						```
 					</script>
 				</section>
+				<section>
+					<h2>implicits</h2>
+<ul>
+				  <li>implicit parameters</li>
+				  <li>type conversions</li>
+				  <li>implicit classes</li>
+</ul>
+					<pre><code class="scala" data-trim>
+scala> implicit val x = 5
+x: Int = 5
+
+sala> def f(implicit y: Int) = println(y)
+f: (implicit y: Int)Unit
+
+scala> f
+5
+					</code></pre>
+					<aside class="notes">
+<ul><li>implicit must be last</li></ul> 
+					</aside>
+				</section>
+
+				<section>
+					<h2>implicits</h2>
+					<pre><code class="scala" data-trim>
+scala> import scala.language.implicitConversions
+import scala.language.implicitConversions
+
+scala> implicit def strToInt(s: String) = s.toInt
+strToInt: (s: String)Int
+
+scala> val x = "5"
+x: String = 5
+
+scala> def f(y: Int) = println(y)
+f: (y: Int)Unit
+
+scala> f(x)
+5
+					</code></pre>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+					  ## Typeclasses
+					  * Nice [tutorial](http://danielwestheide.com/blog/2013/02/06/the-neophytes-guide-to-scala-part-12-type-classes.html) by Daniel Westheide
+
+						```
+						```
+					</script>
+				</section>
+				<section>
+                	<h2>Monoid</h2>
+					<pre><code class="scala" data-trim>
+scala> 1 + "3"
+					</code></pre>
+					<pre><code class="scala" data-trim>
+res3: String = 13
+					</code></pre>
+					<pre><code class="scala" data-trim>
+scala> 1 |+| "3"
+&lt;console>:23: error: type mismatch;
+ found   : String("3")
+ required: Int
+       1 |+| "3"
+             ^
+					</code></pre>
+				</section>
+
+				<section>
+                	<h2>Monoid</h2>
+					<pre><code class="scala" data-trim>
+scala> Map("a" -> 1) + Map("b" -> 2)
+&lt;console>:23: error: type mismatch;
+ found   : scala.collection.immutable.Map[String,Int]
+ required: (String, ?)
+       Map("a" -> 1) + Map("b" -> 2)
+					</code></pre>
+					<pre><code class="scala" data-trim>
+scala> Map("a" -> 1) |+| Map("b" -> 2)
+res6: scala.collection.immutable.Map[String,Int] =
+  Map(b -> 2, a -> 1)
+					</code></pre>
+					<aside class="notes">
+<ul><li>more abstract since |+| defined on all monoids</li></ul>
+                    </aside>
+				</section>
+
+				
 				<section data-markdown>
 					<script type="text/template">
 						## Variance
@@ -98,16 +191,36 @@ final class Actor1 extends Actor {
 						* invariance
 						* covariance
 						* contravariance
+						* [Some](https://blog.codecentric.de/en/2015/03/scala-type-system-parameterized-types-variances-part-1/) [useful](http://stackoverflow.com/questions/4531455/whats-the-difference-between-ab-and-b-in-scala) [links](https://www.clear.rice.edu/comp310/JavaResources/generics/co_contra_host_visitor.html)
+					</script>
+				</section>
 
+								<section data-markdown>
+								  <script type="text/template">
+								    ![Source: https://www.clear.rice.edu/comp310/JavaResources/generics/images/PECS.png](PECS.png)
 
-						```
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+					  ## Variance
+					  
+```
 trait Function1[-T1, +R] extends AnyRef { self =>
   def apply(v1: T1): R
 
   def compose[A](g: A => T1): A => R = { x => apply(g(x)) }
   def andThen[A](g: R => A): T1 => A = { x => g(apply(x)) }
 }
-						```
+```
+
+```
+sealed abstract class List[+A] {
+  def ::[B >: A] (x: B): List[B] = ...
+}
+					  
+```
 					</script>
 				</section>
 

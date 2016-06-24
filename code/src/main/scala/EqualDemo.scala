@@ -18,7 +18,7 @@ object EqualDemo {
   }
 
   def run() = {
-    runDemoEq(5, "3")
+    runDemoEq(5, "5")
     runScalazEq()
   }
 
@@ -29,7 +29,7 @@ object EqualDemo {
   case class Test(a: Int)
   def runScalazEq(): Unit = {
     // this will not even compile
-    // println("Array(1,2) == Array(\"foo\"): " + (Array(1,2) === Array("foo")))
+    // println("Array(1,2) == Array(\"foo\"): " + (Array(1,2) === Array(1,2)))
     println("Array(1,2) == Array(\"foo\"): " + (Array(1,2) == Array("foo")))
   }
 }
